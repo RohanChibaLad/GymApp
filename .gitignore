@@ -13,3 +13,7 @@ services/Weights/WeightSite/__pycache__/__init__.cpython-311.pyc
 services/Weights/WeightSite/__pycache__/settings.cpython-311.pyc
 services/Weights/WeightSite/__pycache__/urls.cpython-311.pyc
 services/Weights/WeightSite/__pycache__/wsgi.cpython-311.pyc
+services/Workouts/WorkoutSite/__pycache__/wsgi.cpython-311.pyc
+services/Workouts/WorkoutSite/__pycache__/urls.cpython-311.pyc
+services/Workouts/WorkoutSite/__pycache__/__init__.cpython-311.pyc
+services/Workouts/WorkoutSite/__pycache__/settings.cpython-311.pyc
