@@ -23,7 +23,7 @@ def userRegister(request):
         validateEmail(data)       # Validating email
         validateDateOfBirth(data) # Validating date of birth
         validatePhoneNumber(data)  # Validating phone number
-        #validateWeight(data)       # Validating weight
+        validateWeight(data)       # Validating weight
         #validateHeight(data)       # Validating height
         
     except BadRequest as e: # Catching validation errors

@@ -145,7 +145,7 @@ def validateWeight(data):
     if weight is None:
         raise BadRequest(validators.MISSING_WEIGHT)
     
-    if not weight.strip():
+    if not str(weight).strip():
         raise BadRequest(validators.EMPTY_WEIGHT)
     
     try:
