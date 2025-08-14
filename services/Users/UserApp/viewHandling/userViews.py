@@ -2,7 +2,10 @@ import json
 
 from UserApp.models import User  # Importing the custom User model 
 from django.http import JsonResponse, HttpResponse
-from UserApp.viewHandling.userViews import validateUserData  # Importing the validation function
+from django.core.exceptions import BadRequest
+
+from UserApp.viewHandling.userViews import validateUsername  # Importing the validation function
+from UserApp.viewHandling.viewHandlingValidators import validators  # Importing the validation messages
 
 def userRegister(request):
     """
@@ -10,18 +13,17 @@ def userRegister(request):
     """
     try:
         data = json.loads(request.body.decode("utf-8"))
-        
     except ValueError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
     
     
     #Validate required fields - TO DO
     try:
-        validateUserData(data) # Validating user data
-    except ValueError as e: # Catching validation errors
+        validateUsername(data) # Validating user data
+    except BadRequest as e: # Catching validation errors
         return HttpResponse(
             content=str(e),
-            content_type="Validation Error",
+            content_type=validators.VALIDATION_ERROR_CONTENT_TYPE,
             status=400)
     
     #Add user to database
