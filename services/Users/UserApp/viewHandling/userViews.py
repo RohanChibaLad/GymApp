@@ -36,6 +36,8 @@ def userRegister(request):
     user = User.objects.create_user(
         username=data.get("username"),
         password=data.get("password"), 
+        first_name=data.get("first_name"),
+        last_name=data.get("last_name"),
         email=data.get("email"),
         date_of_birth=data.get("date_of_birth"),
         phone_number=data.get("phone_number"),
