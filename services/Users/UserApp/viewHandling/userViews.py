@@ -22,7 +22,7 @@ def userRegister(request):
         validatePassword(data)  # Validating password --> also validate first and last name
         validateEmail(data)       # Validating email
         validateDateOfBirth(data) # Validating date of birth
-        #validatePhoneNumber(data)  # Validating phone number
+        validatePhoneNumber(data)  # Validating phone number
         #validateWeight(data)       # Validating weight
         #validateHeight(data)       # Validating height
         
