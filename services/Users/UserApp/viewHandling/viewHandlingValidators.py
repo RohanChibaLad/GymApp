@@ -166,7 +166,7 @@ def validateHeight(data):
     if height is None:
         raise BadRequest(validators.MISSING_HEIGHT)
     
-    if not height.strip():
+    if not str(height).strip():
         raise BadRequest(validators.EMPTY_HEIGHT)
     
     try:
