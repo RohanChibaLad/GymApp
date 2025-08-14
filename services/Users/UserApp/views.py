@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie
-
+from UserApp.models import User  # Importing the custom User model 
 import json
 
 # Create your views here.
@@ -34,36 +34,28 @@ def userRegister(request):
     """
     try:
         data = json.loads(request.body.decode("utf-8"))
+        
     except ValueError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
     
-    firstName = data.get("first_name")
-    lastName = data.get("last_name")
-    username = data.get("username")
-    password = data.get("password")
-    email = data.get("email")
-    height = data.get("height")
-    weight = data.get("weight")
-    dateOfBirth = data.get("date_of_birth")
-    phoneNumber = data.get("phone_number")
+    
+    #Validate required fields - TO DO
+    
+    #Add user to database
+    user = User.objects.create_user(
+        username=data.get("username"),
+        password=data.get("password"),
+        first_name=data.get("first_name"),
+        last_name=data.get("last_name"),
+        email=data.get("email"),
+        date_of_birth=data.get("date_of_birth"),
+        phone_number=data.get("phone_number"),
+        weight=data.get("weight"),
+        height=data.get("height")
+    )
     
     
-    return JsonResponse(
-    {
-        "ok": True,
-        "received": {
-            "firstName": firstName,
-            "lastName": lastName,
-            "username": username,
-            "password": password,
-            "email": email,
-            "height": height,
-            "weight": weight,
-            "dateOfBirth": dateOfBirth,
-            "phoneNumber": phoneNumber
-        }
-    },
-    status=201,
+    return JsonResponse({"User Created!": True}, status=201,
 )
 
 def userLogin(request):
