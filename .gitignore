@@ -1,19 +1,50 @@
-services/.DS_Store
-services/Users/.DS_Store
-.venv/
-services/Workouts/.DS_Store
-services/Weights/.DS_Store
-services/Users/UserSite/.DS_Store
+# --- OS cruft ---
+.DS_Store
+Thumbs.db
 
-services/Users/UserSite/__pycache__/wsgi.cpython-311.pyc
-services/Users/UserSite/__pycache__/settings.cpython-311.pyc
-services/Users/UserSite/__pycache__/__init__.cpython-311.pyc
-services/Users/UserSite/__pycache__/urls.cpython-311.pyc
-services/Weights/WeightSite/__pycache__/__init__.cpython-311.pyc
-services/Weights/WeightSite/__pycache__/settings.cpython-311.pyc
-services/Weights/WeightSite/__pycache__/urls.cpython-311.pyc
-services/Weights/WeightSite/__pycache__/wsgi.cpython-311.pyc
-services/Workouts/WorkoutSite/__pycache__/wsgi.cpython-311.pyc
-services/Workouts/WorkoutSite/__pycache__/urls.cpython-311.pyc
-services/Workouts/WorkoutSite/__pycache__/__init__.cpython-311.pyc
-services/Workouts/WorkoutSite/__pycache__/settings.cpython-311.pyc
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Django ---
+db.sqlite3
+db.*.sqlite3
+**/db_data/          # any local db volume/dir per service
+media/
+staticfiles/
+
+# --- Envs & secrets ---
+.venv/
+venv/
+env/
+.env
+.env.*
+*.pem
+*.key
+jwtRS256.key*
+
+# --- Tests & tooling ---
+.pytest_cache/
+.coverage*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.pyright/
+.pyre/
+.eggs/
+*.egg-info
+pip-wheel-metadata/
+.cache/
+
+# --- Docker/local ---
+volumes/
+*.pid
+
+# --- Editors/IDE ---
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+.idea/
+*.iml
