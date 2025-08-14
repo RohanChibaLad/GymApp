@@ -19,10 +19,8 @@ def userRegister(request):
     #Validate required fields - TO DO
     try:
         validateUsername(data) # Validating user data
-        validatePassword(data)  # Validating password
-        validateFirstName(data)  # Validating first name
-        #validateLastName(data)   # Validating last name
-        #validateEmail(data)       # Validating email
+        validatePassword(data)  # Validating password --> also validate first and last name
+        validateEmail(data)       # Validating email
         #validateDateOfBirth(data) # Validating date of birth
         #validatePhoneNumber(data)  # Validating phone number
         #validateWeight(data)       # Validating weight
@@ -37,7 +35,7 @@ def userRegister(request):
     #Add user to database
     user = User.objects.create_user(
         username=data.get("username"),
-        password=data.get("password"), #Also validates FN and LN
+        password=data.get("password"), 
         email=data.get("email"),
         date_of_birth=data.get("date_of_birth"),
         phone_number=data.get("phone_number"),

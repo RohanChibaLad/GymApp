@@ -93,8 +93,8 @@ def validateEmail(data):
     
     try:
         validate_email(email)
-    except ValidationError:
-        raise BadRequest(validators.INVALID_EMAIL)
+    except ValidationError as e:
+        raise BadRequest(validators.INVALID_EMAIL, e)
     
     if User.objects.filter(email=email).exists():
         raise BadRequest(validators.TAKEN_EMAIL)
