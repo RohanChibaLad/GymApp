@@ -38,26 +38,26 @@ def validatePassword(data):
         raise BadRequest(validators.EMPTY_PASSWORD)
     
     if len(password) < 8:
-        raise ValueError(validators.INVALID_PASSWORD)
+        raise BadRequest(validators.INVALID_PASSWORD)
     
     if not (any(c.isupper() for c in password) and 
             any(c.islower() for c in password) and 
             any(c.isdigit() for c in password) and 
             any(c in "!@#$%^&*()-_=+[]{}|;:,.<>?/" for c in password)):
-        raise ValueError(validators.UNCOMPLEX_PASSWORD)
+        raise BadRequest(validators.UNCOMPLEX_PASSWORD)
     
     first_name = data.get("first_name", "")
     last_name = data.get("last_name", "")
     
     if first_name.lower() in password.lower():
-        raise ValueError(validators.FIRST_NAME_IN_PASSWORD)
+        raise BadRequest(validators.FIRST_NAME_IN_PASSWORD)
     
     if last_name.lower() in password.lower():
-        raise ValueError(validators.LAST_NAME_IN_PASSWORD)
+        raise BadRequest(validators.LAST_NAME_IN_PASSWORD)
     
     # Check for unaccepted characters
     if any(c.isspace() or c in "\"'`" for c in password):
-        raise ValueError(validators.UNACCEPTED_CHARACTERS_IN_PASSWORD)
+        raise BadRequest(validators.UNACCEPTED_CHARACTERS_IN_PASSWORD)
 
 
 def validateFirstName(data):
@@ -107,7 +107,7 @@ def validateDateOfBirth(data):
     
     try:
         dob = datetime.strptime(date_of_birth, "%Y-%m-%d").date()
-    except ValueError:
+    except BadRequest:
         raise BadRequest(validators.INVALID_DATE_OF_BIRTH)
     
     if dob > datetime.now().date():
@@ -146,7 +146,7 @@ def validateWeight(data):
     
     try:
         weight_value = float(weight)
-    except ValueError:
+    except BadRequest:
         raise BadRequest(validators.INVALID_WEIGHT)
     
     if weight_value < 0:
@@ -167,7 +167,7 @@ def validateHeight(data):
     
     try:
         height_value = int(height)
-    except ValueError:
+    except BadRequest:
         raise BadRequest(validators.INVALID_HEIGHT)
     
     if height_value < 40:

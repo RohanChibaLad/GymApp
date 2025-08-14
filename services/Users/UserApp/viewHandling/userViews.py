@@ -4,7 +4,7 @@ from UserApp.models import User  # Importing the custom User model
 from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import BadRequest
 
-from UserApp.viewHandling.viewHandlingValidators import validateUsername  # Importing the validation function
+from UserApp.viewHandling.viewHandlingValidators import validateUsername, validatePassword  # Importing the validation function
 
 def userRegister(request):
     """
@@ -19,6 +19,7 @@ def userRegister(request):
     #Validate required fields - TO DO
     try:
         validateUsername(data) # Validating user data
+        validatePassword(data)  # Validating password
     except BadRequest as e: # Catching validation errors
         return HttpResponse(
             content=str(e),
