@@ -4,7 +4,7 @@ from UserApp.models import User  # Importing the custom User model
 from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import BadRequest
 
-from UserApp.viewHandling.viewHandlingValidators import validateUsername, validatePassword  # Importing the validation function
+from UserApp.viewHandling.viewHandlingValidators import validateUsername, validatePassword, validateFirstName, validateLastName, validateEmail, validateDateOfBirth, validatePhoneNumber, validateHeight, validateWeight  # Importing the validation function
 
 def userRegister(request):
     """
@@ -20,6 +20,14 @@ def userRegister(request):
     try:
         validateUsername(data) # Validating user data
         validatePassword(data)  # Validating password
+        validateFirstName(data)  # Validating first name
+        #validateLastName(data)   # Validating last name
+        #validateEmail(data)       # Validating email
+        #validateDateOfBirth(data) # Validating date of birth
+        #validatePhoneNumber(data)  # Validating phone number
+        #validateWeight(data)       # Validating weight
+        #validateHeight(data)       # Validating height
+        
     except BadRequest as e: # Catching validation errors
         return HttpResponse(
             content=str(e),
@@ -29,9 +37,7 @@ def userRegister(request):
     #Add user to database
     user = User.objects.create_user(
         username=data.get("username"),
-        password=data.get("password"),
-        first_name=data.get("first_name"),
-        last_name=data.get("last_name"),
+        password=data.get("password"), #Also validates FN and LN
         email=data.get("email"),
         date_of_birth=data.get("date_of_birth"),
         phone_number=data.get("phone_number"),

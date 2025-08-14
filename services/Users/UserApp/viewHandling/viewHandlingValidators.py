@@ -46,8 +46,12 @@ def validatePassword(data):
             any(c in "!@#$%^&*()-_=+[]{}|;:,.<>?/" for c in password)):
         raise BadRequest(validators.UNCOMPLEX_PASSWORD)
     
+    validateFirstName(data)
+    validateLastName(data)
+    
     first_name = data.get("first_name", "")
     last_name = data.get("last_name", "")
+
     
     if first_name.lower() in password.lower():
         raise BadRequest(validators.FIRST_NAME_IN_PASSWORD)
