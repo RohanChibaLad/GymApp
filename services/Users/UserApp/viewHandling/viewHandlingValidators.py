@@ -1,7 +1,8 @@
 from UserApp.models import User  # Importing the custom User model 
-from userViews import viewHandlingConstants as validators  # Importing the validation functions
 from django.core.exceptions import ValidationError, BadRequest
 from django.core.validators import validate_email, RegexValidator
+
+from UserApp.viewHandling import viewHandlingConstants as validators  # Importing validation messages
 import datetime
 
 

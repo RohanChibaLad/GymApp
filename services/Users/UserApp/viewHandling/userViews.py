@@ -4,8 +4,7 @@ from UserApp.models import User  # Importing the custom User model
 from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import BadRequest
 
-from UserApp.viewHandling.userViews import validateUsername  # Importing the validation function
-from UserApp.viewHandling.viewHandlingValidators import validators  # Importing the validation messages
+from UserApp.viewHandling.viewHandlingValidators import validateUsername  # Importing the validation function
 
 def userRegister(request):
     """
@@ -23,7 +22,7 @@ def userRegister(request):
     except BadRequest as e: # Catching validation errors
         return HttpResponse(
             content=str(e),
-            content_type=validators.VALIDATION_ERROR_CONTENT_TYPE,
+            content_type="Validation Error",
             status=400)
     
     #Add user to database
