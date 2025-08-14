@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError, BadRequest
 from django.core.validators import validate_email, RegexValidator
 
 from UserApp.viewHandling import viewHandlingConstants as validators  # Importing validation messages
-import datetime
+from datetime import datetime
 
 
 def validateUsername(data):
@@ -94,7 +94,7 @@ def validateEmail(data):
     try:
         validate_email(email)
     except ValidationError as e:
-        raise BadRequest(validators.INVALID_EMAIL, e)
+        raise BadRequest(validators.INVALID_EMAIL)
     
     if User.objects.filter(email=email).exists():
         raise BadRequest(validators.TAKEN_EMAIL)
@@ -111,7 +111,7 @@ def validateDateOfBirth(data):
     
     try:
         dob = datetime.strptime(date_of_birth, "%Y-%m-%d").date()
-    except BadRequest:
+    except ValueError:
         raise BadRequest(validators.INVALID_DATE_OF_BIRTH)
     
     if dob > datetime.now().date():
