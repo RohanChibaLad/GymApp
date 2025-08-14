@@ -1,0 +1,46 @@
+MISSING_USERNAME = "Username is missing."
+EMPTY_USERNAME = "Username cannot be empty."
+TAKEN_USERNAME = "Username is already taken."
+INVALID_USERNAME = "Username is invalid. It must be between 3 and 150 characters long."
+
+MISSING_PASSWORD = "Password is missing."
+EMPTY_PASSWORD = "Password cannot be empty."
+INVALID_PASSWORD = "Password is invalid. It must be at least 8 characters long."
+UNCOMPLEX_PASSWORD = "Password is too simple. It must contain at least one uppercase letter, one lowercase letter, one digit, and one special character."
+FIRST_NAME_IN_PASSWORD = "Password cannot contain the first name."
+LAST_NAME_IN_PASSWORD = "Password cannot contain the last name."
+UNACCEPTED_CHARACTERS_IN_PASSWORD = "Password contains characters that are not allowed."
+
+MISSING_FIRST_NAME = "First name is missing."
+EMPTY_FIRST_NAME = "First name cannot be empty."
+
+MISSING_LAST_NAME = "Last name is missing."
+EMPTY_LAST_NAME = "Last name cannot be empty."
+
+MISSING_EMAIL = "Email is missing."
+EMPTY_EMAIL = "Email cannot be empty."
+INVALID_EMAIL = "Email is invalid. It must be a valid email format."
+TAKEN_EMAIL = "Email is already taken."
+
+MISSING_DATE_OF_BIRTH = "Date of birth is missing."
+EMPTY_DATE_OF_BIRTH = "Date of birth cannot be empty."
+INVALID_DATE_OF_BIRTH = "Date of birth is invalid. It must be a valid date format (YYYY-MM-DD)."
+FUTURE_DATE_OF_BIRTH = "Date of birth cannot be a future date."
+OLD_DATE_OF_BIRTH = "Date of birth cannot be more than 100 years in the past."
+
+MISSING_PHONE_NUMBER = "Phone number is missing."
+EMPTY_PHONE_NUMBER = "Phone number cannot be empty."
+INVALID_PHONE_NUMBER = "Phone number is invalid. It must be a valid phone number format (e.g., +1234567890)."
+TAKEN_PHONE_NUMBER = "Phone number is already taken."
+
+MISSING_WEIGHT = "Weight is missing."
+EMPTY_WEIGHT = "Weight cannot be empty."
+INVALID_WEIGHT = "Weight is invalid. It must be a valid decimal number."
+SMALL_WEIGHT = "Weight cannot be less than 0 kg."
+LARGE_WEIGHT = "Weight cannot be more than 500 kg."
+
+MISSING_HEIGHT = "Height is missing."
+EMPTY_HEIGHT = "Height cannot be empty."
+INVALID_HEIGHT = "Height is invalid. It must be a valid positive integer."
+SMALL_HEIGHT = "Height cannot be less than 40 cm."
+LARGE_HEIGHT = "Height cannot be more than 300 cm."

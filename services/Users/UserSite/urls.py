@@ -16,7 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from UserApp.views import get_CSRF_token  # Importing the view to get CSRF token
+from UserApp.views import user  # Importing the user view to handle user actions
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('get_csrf_token/', get_CSRF_token, name='get_csrf_token'),
+    path('user/', user, name='user'),  # URL for user actions
 ]
