@@ -22,7 +22,7 @@ def validateUsername(data):
         raise BadRequest(validators.TAKEN_USERNAME)
     
     if len(username) < 3 or len(username) > 150:
-        raise ValueError(validators.INVALID_USERNAME)
+        raise BadRequest(validators.INVALID_USERNAME)
 
 
 def validatePassword(data):
