@@ -5,8 +5,7 @@ from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import BadRequest, ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
 
-from UserApp.viewHandling.viewHandlingValidators import validateUsername, validatePassword, validateEmail, validateDateOfBirth, validatePhoneNumber, validateHeight, validateWeight, validateLoginData, validateGetStudentData  # Importing the validation function
-
+from UserApp.viewHandling.viewHandlingValidators import validateCreateUsername, validateCreatePassword, validateCreateEmail, validateDateOfBirth, validatePhoneNumber, validateWeight, validateHeight
 def userRegister(request):
     """
     A view to handle user registration.
@@ -19,9 +18,9 @@ def userRegister(request):
     
     #Validate required fields - TO DO
     try:
-        validateUsername(data) # Validating user data
-        validatePassword(data)  # Validating password --> also validate first and last name
-        validateEmail(data)       # Validating email
+        validateCreateUsername(data) # Validating user data
+        validateCreatePassword(data)  # Validating password --> also validate first and last name
+        validateCreateEmail(data)       # Validating email
         validateDateOfBirth(data) # Validating date of birth
         validatePhoneNumber(data)  # Validating phone number
         validateWeight(data)       # Validating weight
