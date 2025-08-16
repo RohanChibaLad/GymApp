@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import ensure_csrf_cookie
-from UserApp.viewHandling.userViews import userRegister, userLogin, userLogout, userDelete
+from UserApp.viewHandling.userViews import userRegister, userLogin, userLogout, userDelete, userGet
 
 # Create your views here.
 @ensure_csrf_cookie
