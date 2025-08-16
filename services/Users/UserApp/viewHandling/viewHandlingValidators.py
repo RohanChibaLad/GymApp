@@ -179,3 +179,22 @@ def validateHeight(data):
     
     if height_value > 300:
         raise BadRequest(validators.LARGE_HEIGHT)
+
+def validateLoginData(data):
+    """
+    Validates the login data provided in the request.
+    """
+    username = data.get("username")
+    password = data.get("password")
+    
+    if username is None:
+        raise BadRequest(validators.MISSING_USERNAME)
+    
+    if not username.strip():
+        raise BadRequest(validators.EMPTY_USERNAME)
+    
+    if password is None:
+        raise BadRequest(validators.MISSING_PASSWORD)
+    
+    if not password.strip():
+        raise BadRequest(validators.EMPTY_PASSWORD)
