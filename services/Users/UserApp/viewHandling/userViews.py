@@ -68,7 +68,7 @@ def userLogin(request):
     
     #Check if user exists
     if not authenticateUser(request, data):
-        return HttpResponse({"error": "Invalid credentials"}, status=401)
+        return JsonResponse({"error": "Invalid credentials"}, status=401)
 
     response = createUserResponseData(request.user)
     response["message"] = "User logged in successfully"
