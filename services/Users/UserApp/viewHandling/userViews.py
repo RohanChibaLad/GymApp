@@ -5,7 +5,8 @@ from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import BadRequest, ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
 
-from UserApp.viewHandling.viewHandlingValidators import validateCreateUsername, validateCreatePassword, validateCreateEmail, validateDateOfBirth, validatePhoneNumber, validateWeight, validateHeight
+from UserApp.viewHandling.viewHandlingValidators import validateCreateUsername, validateCreatePassword, validateCreateEmail, validateDateOfBirth, validatePhoneNumber, validateWeight, validateHeight, validateLoginData, validateGetStudentData
+
 def userRegister(request):
     """
     A view to handle user registration.
