@@ -2,10 +2,10 @@ import json
 
 from UserApp.models import User  # Importing the custom User model 
 from django.http import JsonResponse, HttpResponse
-from django.core.exceptions import BadRequest
+from django.core.exceptions import BadRequest, ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
 
-from UserApp.viewHandling.viewHandlingValidators import validateUsername, validatePassword, validateEmail, validateDateOfBirth, validatePhoneNumber, validateHeight, validateWeight, validateLoginData  # Importing the validation function
+from UserApp.viewHandling.viewHandlingValidators import validateUsername, validatePassword, validateEmail, validateDateOfBirth, validatePhoneNumber, validateHeight, validateWeight, validateLoginData, validateGetStudentData  # Importing the validation function
 
 def userRegister(request):
     """
@@ -113,6 +113,49 @@ def createUserResponseData(user: User) -> dict:
         "weight": str(user.weight) if user.weight is not None else None,
         "height": user.height
     }
+
+def userGet(request):
+    """
+    A view to handle user retrieval.
+    """
+    data = dict(request.GET)
+    for key in data:
+        data[key] == data[key][0]
+    
+    if len(data) == 0:
+        userGetSelf(request)
+    
+    try:
+        validateGetStudentData(data)
+    except BadRequest as e:
+        return JsonResponse({"error": str(e)}, status=400)
+    except ObjectDoesNotExist as e:
+        return JsonResponse({"error": str(e)}, status=404)
+
+    if "id" in data:
+        user = User.objects.get(id=data["id"])
+    elif "username" in data:
+        user = User.objects.get(username=data["username"])
+    else:
+        user = User.objects.get(email=data["email"])
+        
+    returnData = createUserResponseData(user)
+    return JsonResponse(returnData, status=200)
+
+def userGetSelf(request):
+    """
+    A view to handle retrieval of the authenticated user's data.
+    """
+    if not request.user.is_authenticated:
+        return HttpResponse(
+            content="User not logged in",
+            content_type="text/plain",
+            status=401
+        )
+    
+    user = request.user
+    returnData = createUserResponseData(user)
+    return JsonResponse(returnData, status=200)
     
 def userDelete(request):
     """

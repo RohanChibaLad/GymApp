@@ -5,18 +5,22 @@ from django.core.validators import validate_email, RegexValidator
 from UserApp.viewHandling import viewHandlingConstants as validators  # Importing validation messages
 from datetime import datetime
 
+def validateUserName(data):
+    username = data.get("username")
 
+    if username is None:
+        raise BadRequest(validators.MISSING_USERNAME)
+    
+    if not username.strip():
+        raise BadRequest(validators.EMPTY_USERNAME)
+    
 def validateUsername(data):
     """
     Validates the username field in the provided data.
     """
     username = data.get("username")
     
-    if username is None:
-        raise BadRequest(validators.MISSING_USERNAME)
-    
-    if not username.strip():
-        raise BadRequest(validators.EMPTY_USERNAME)
+    validateUsername(data)  # Check if username is provided and not empty
     
     if User.objects.filter(username=username).exists():
         raise BadRequest(validators.TAKEN_USERNAME)
@@ -198,3 +202,17 @@ def validateLoginData(data):
     
     if not password.strip():
         raise BadRequest(validators.EMPTY_PASSWORD)
+
+def validateGetStudentData(data):
+    """
+    Validates the data for retrieving user information.
+    """
+    
+    if "id" in data:
+       validateUserID(data)
+    elif "username" in data:
+        validateUsername(data)
+    elif "email" in data:
+        validateEmail(data)
+
+    

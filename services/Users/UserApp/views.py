@@ -19,7 +19,7 @@ def user(request):
     if request.method == 'POST':
         return userRegister(request)
     elif request.method == 'GET':
-        pass
+        userGet(request)
     elif request.method == "DELETE":
         userDelete(request)
 
