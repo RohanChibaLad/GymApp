@@ -3,7 +3,7 @@ import json
 from UserApp.models import User  # Importing the custom User model 
 from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import BadRequest
-from django.cotrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout
 
 from UserApp.viewHandling.viewHandlingValidators import validateUsername, validatePassword, validateEmail, validateDateOfBirth, validatePhoneNumber, validateHeight, validateWeight, validateLoginData  # Importing the validation function
 
