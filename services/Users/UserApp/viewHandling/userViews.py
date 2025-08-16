@@ -67,7 +67,7 @@ def userLogin(request):
             status=400)
     
     #Check if user exists
-    if not authenticateUser(request):
+    if not authenticateUser(request, data):
         return HttpResponse({"error": "Invalid credentials"}, status=401)
 
     response = createUserResponseData(request.user)
@@ -87,13 +87,6 @@ def userLogout(request):
         status=401
     )
     
-
-def userDelete(request):
-    """
-    A view to handle user deletion.
-    """
-    # Logic for user deletion
-    pass
 
 def authenticateUser(request, requestData: dict):
     """
@@ -120,3 +113,10 @@ def createUserResponseData(user: User) -> dict:
         "weight": str(user.weight) if user.weight is not None else None,
         "height": user.height
     }
+    
+def userDelete(request):
+    """
+    A view to handle user deletion.
+    """
+    # Logic for user deletion
+    pass
