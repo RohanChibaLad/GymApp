@@ -76,3 +76,15 @@ curl -i -b jar.txt "http://localhost:8000/user/?email=rohan19@gmail.com"
 
 # By id
 curl -i -b jar.txt "http://localhost:8000/user/?id=15"
+
+
+Deleting a User
+curl -s -c jar.txt http://localhost:8000/get_csrf_token/ >/dev/null; \
+CT=$(awk '$6=="csrftoken"{print $7}' jar.txt | tail -1); \
+curl -s -i -X POST http://localhost:8000/login/ -b jar.txt -c jar.txt \
+  -H "X-CSRFToken: $CT" -H "Content-Type: application/json" \
+  -d '{"username":"rohan19","password":"Password123*"}' >/dev/null; \
+CT=$(awk '$6=="csrftoken"{print $7}' jar.txt | tail -1); \
+curl -i -X DELETE "http://localhost:8000/user/?id=15" -b jar.txt \
+  -H "X-CSRFToken: $CT" -H "Content-Type: application/json" \
+  -d '{}'
