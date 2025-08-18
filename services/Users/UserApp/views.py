@@ -19,9 +19,9 @@ def user(request):
     if request.method == 'POST':
         return userRegister(request)
     elif request.method == 'GET':
-        userGet(request)
+        return userGet(request)
     elif request.method == "DELETE":
-        userDelete(request)
+        return userDelete(request)
 
     return HttpResponse(
         content="Method not allowed",

@@ -1,5 +1,5 @@
 from UserApp.models import User  # Importing the custom User model 
-from django.core.exceptions import ValidationError, BadRequest
+from django.core.exceptions import ValidationError, BadRequest, ObjectDoesNotExist
 from django.core.validators import validate_email, RegexValidator
 
 from UserApp.viewHandling import viewHandlingConstants as validators  # Importing validation messages
@@ -14,6 +14,15 @@ def validateUsername(username):
     
     if not isinstance(username, str):
         raise BadRequest(validators.INVALID_USERNAME_TYPE)
+
+def validateGetUsername(data):
+    """
+    Validates the username field in the provided data.
+    """
+    username = data.get("username")
+    
+    validateUsername(username)  # Check if username is provided and not empty
+    validateUsernameExists(username)  # Check if username exists in the database
 
 def validateUniqueUsername(username):
     if User.objects.filter(username=username).exists():
@@ -32,6 +41,13 @@ def validateCreateUsername(data):
     validateUsername(username)  # Check if username is provided and not empty
     validateUniqueUsername(username)  # Check if username is unique
     validateUsernameLength(username)  # Check if username length is valid
+
+def validateUsernameExists(username):
+    """
+    Checks if a user with the given username exists in the database.
+    """
+    if not User.objects.filter(username=username).exists():
+        raise ObjectDoesNotExist(validators.USERNAME_DOES_NOT_EXIST)
 
 def validateCreatePassword(data):
     """
@@ -100,8 +116,7 @@ def validateLastName(data):
     if not isinstance(last_name, str):
         raise BadRequest(validators.INVALID_LAST_NAME_TYPE)
 
-def validateEmail(data):
-    email = data.get("email")
+def validateEmail(email):
     
     if email is None:
         raise BadRequest(validators.MISSING_EMAIL)
@@ -117,6 +132,15 @@ def validateEmail(data):
     if not isinstance(email, str):
         raise BadRequest(validators.INVALID_EMAIL_TYPE)
     
+def validateGetEmail(data):
+    """
+    Validates the email field in the provided data.
+    """
+    email = data.get("email")
+    
+    validateEmail(email)  # Validate email format
+    validateEmailExists(email)  # Check if email exists in the database
+
 def validateUniqueEmail(email):
     if User.objects.filter(email=email).exists():
         raise BadRequest(validators.TAKEN_EMAIL)
@@ -125,6 +149,11 @@ def validateCreateEmail(data):
     email = data.get("email")
     validateEmail(email)  # Validate email format
     validateUniqueEmail(email)  # Check if email is unique 
+
+def validateEmailExists(email):
+    
+    if not User.objects.filter(email=email).exists():
+        raise ObjectDoesNotExist(validators.EMAIL_DOES_NOT_EXIST)
 
 def validateDateOfBirth(data):
     date_of_birth = data.get("date_of_birth")
@@ -217,17 +246,36 @@ def validateHeight(data):
     if not isinstance(height, int):
         raise BadRequest(validators.INVALID_HEIGHT_TYPE)
 
-def validateUserID(data):
-    user_id = data.get("id")
+def validateUserID(user_id):
+    if not user_id.strip():
+        raise BadRequest(validators.EMPTY_USER_ID)
+    try:
+        user_id = int(user_id)              
+    except (ValueError, TypeError):
+        raise BadRequest("User ID must be an integer.")
+    
     
     if user_id is None:
         raise BadRequest(validators.MISSING_USER_ID)
     
-    if not isinstance(user_id, int):
-        raise BadRequest(validators.INVALID_USER_ID_TYPE)
-    
     if user_id <= 0:
         raise BadRequest(validators.INVALID_USER_ID_VALUE)
+
+def validateGetUserID(data):
+    """
+    Validates the user ID field in the provided data.
+    """
+    user_id = data.get("id")
+    
+    validateUserID(user_id)  # Validate user ID format
+    validateUserIDExists(user_id)
+
+def validateUserIDExists(user_id):
+    """
+    Checks if a user with the given ID exists in the database.
+    """
+    if not User.objects.filter(id=user_id).exists():
+        raise ObjectDoesNotExist(validators.ID_DOES_NOT_EXIST)
 
 def validateLoginData(data):
     """
@@ -239,16 +287,13 @@ def validateLoginData(data):
     validateUsername(username)  # Check if username is provided and not empty
     validatePassword(password)  # Check if password is provided and not empty
 
-def validateGetStudentData(data):
-    """
-    Validates the data for retrieving user information.
-    """
-    
-    if "id" in data:
-       validateUserID(data)
-    elif "username" in data:
-        validateUsername(data)
-    elif "email" in data:
-        validateEmail(data)
-
-    
+def validateGetStudentData(data: dict) -> None:
+    try:
+        if "id" in data:
+            validateGetUserID(data)
+        elif "username" in data:
+            validateGetUsername(data)
+        else:
+            validateGetEmail(data)
+    except ValidationError as e:
+        raise ObjectDoesNotExist(str(e))

@@ -118,12 +118,10 @@ def userGet(request):
     """
     A view to handle user retrieval.
     """
-    data = dict(request.GET)
-    for key in data:
-        data[key] == data[key][0]
+    data = request.GET.dict() 
     
     if len(data) == 0:
-        userGetSelf(request)
+        return userGetSelf(request)
     
     try:
         validateGetStudentData(data)
@@ -140,6 +138,7 @@ def userGet(request):
         user = User.objects.get(email=data["email"])
         
     returnData = createUserResponseData(user)
+    returnData["message"] = "User data retrieved successfully"
     return JsonResponse(returnData, status=200)
 
 def userGetSelf(request):
@@ -155,6 +154,7 @@ def userGetSelf(request):
     
     user = request.user
     returnData = createUserResponseData(user)
+    returnData["message"] = "User data retrieved successfully"
     return JsonResponse(returnData, status=200)
     
 def userDelete(request):
