@@ -32,11 +32,47 @@ curl -i -X POST http://localhost:8000/login/ \
 Logging a user out -- Use token from previous login command
 curl -s -c jar.txt http://localhost:8000/get_csrf_token/ >/dev/null; \
 CT=$(awk '$6=="csrftoken"{print $7}' jar.txt | tail -1); \
+
 curl -i -X POST http://localhost:8000/login/ -b jar.txt -c jar.txt \
   -H "X-CSRFToken: $CT" -H "Content-Type: application/json" \
   -d '{"username":"rohan19","password":"Password123*"}'; \
 CT=$(awk '$6=="csrftoken"{print $7}' jar.txt | tail -1); \
+
 curl -i -X POST http://localhost:8000/logout/ -b jar.txt \
   -H "X-CSRFToken: $CT" -H "Content-Type: application/json" -d '{}'
 
-      }'
+
+
+Getting a User's Self Data
+curl -s -c jar.txt http://localhost:8000/get_csrf_token/ >/dev/null
+CT=$(awk '$6=="csrftoken"{print $7}' jar.txt | tail -1)
+
+curl -i -X POST http://localhost:8000/login/ \
+  -b jar.txt -c jar.txt \
+  -H "X-CSRFToken: $CT" \
+  -H "Content-Type: application/json" \
+  -d '{"username":"rohan19","password":"Password123*"}'
+
+curl -i -b jar.txt http://localhost:8000/user/
+
+CT=$(awk '$6=="csrftoken"{print $7}' jar.txt | tail -1)
+
+curl -i -X POST http://localhost:8000/logout/ \
+  -b jar.txt \
+  -H "X-CSRFToken: $CT" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+
+curl -i -b jar.txt http://localhost:8000/user/
+
+rm -f jar.txt
+
+
+# By username
+curl -i -b jar.txt "http://localhost:8000/user/?username=rohan19"
+
+# By email
+curl -i -b jar.txt "http://localhost:8000/user/?email=rohan19@gmail.com"
+
+# By id
+curl -i -b jar.txt "http://localhost:8000/user/?id=15"
