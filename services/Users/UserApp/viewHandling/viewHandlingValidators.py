@@ -297,3 +297,13 @@ def validateGetStudentData(data: dict) -> None:
             validateGetEmail(data)
     except ValidationError as e:
         raise ObjectDoesNotExist(str(e))
+    
+def validateDeleteStudentData(data: dict) -> None:
+    """
+    Validates the data for deleting a user.
+    """
+    if "id" in data:
+        validateGetUserID(data)
+    else:
+        raise BadRequest(validators.MISSING_USER_ID)
+    

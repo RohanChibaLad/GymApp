@@ -5,7 +5,7 @@ from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import BadRequest, ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
 
-from UserApp.viewHandling.viewHandlingValidators import validateCreateUsername, validateCreatePassword, validateCreateEmail, validateDateOfBirth, validatePhoneNumber, validateWeight, validateHeight, validateLoginData, validateGetStudentData
+from UserApp.viewHandling.viewHandlingValidators import validateCreateUsername, validateCreatePassword, validateCreateEmail, validateDateOfBirth, validatePhoneNumber, validateWeight, validateHeight, validateLoginData, validateGetStudentData, validateDeleteStudentData
 
 def userRegister(request):
     """
@@ -75,6 +75,7 @@ def userLogin(request):
     return JsonResponse(response, status=200)
     
 def userLogout(request):
+
     """
     A view to handle user logout.
     """
@@ -118,6 +119,12 @@ def userGet(request):
     """
     A view to handle user retrieval.
     """
+    
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+    except ValueError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+    
     data = request.GET.dict() 
     
     if len(data) == 0:
@@ -161,5 +168,24 @@ def userDelete(request):
     """
     A view to handle user deletion.
     """
-    # Logic for user deletion
-    pass
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+    except ValueError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+    
+    data = request.GET.dict()
+    
+    try:
+        validateDeleteStudentData(data)
+    except BadRequest as e:
+        return JsonResponse({"error": str(e)}, status=400)
+    except ObjectDoesNotExist as e:
+        return JsonResponse({"error": str(e)}, status=404)
+    
+    user = User.objects.get(id=data["id"])
+    if not user:
+        return JsonResponse({"error": "User not found"}, status=404)
+    
+    user.delete()
+    
+    return JsonResponse({"message": "User deleted successfully"}, status=200)
