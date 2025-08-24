@@ -14,7 +14,6 @@ LAST_NAME_IN_PASSWORD = "Password cannot contain the last name."
 UNACCEPTED_CHARACTERS_IN_PASSWORD = "Password contains characters that are not allowed."
 INVALID_PASSWORD_TYPE = "Password must be a string."
 
-
 MISSING_FIRST_NAME = "First name is missing."
 EMPTY_FIRST_NAME = "First name cannot be empty."
 INVALID_FIRST_NAME_TYPE = "First name must be a string."
