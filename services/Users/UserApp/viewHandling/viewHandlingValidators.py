@@ -7,6 +7,7 @@ from decimal import Decimal, InvalidOperation
 from UserApp.viewHandling import viewHandlingConstants as validators  # Importing validation messages
 from datetime import datetime
 
+#USERNAME VALIDATIONS
 def validateUsername(username: str) -> str:
     if username is None:
         raise BadRequest(validators.MISSING_USERNAME)
@@ -20,23 +21,6 @@ def validateUsername(username: str) -> str:
 
     return username
 
-def validateGetUsername(data):
-    """
-    Validates the username field in the provided data.
-    """
-    username = data.get("username")
-    
-    u_username = validateUsername(username)  # Check if username is provided and not empty
-    validateUsernameExists(u_username)  # Check if username exists in the database
-
-def validateUniqueUsername(username: str) -> None:
-    if User.objects.filter(username=username).exists():
-        raise BadRequest(validators.TAKEN_USERNAME)
-
-def validateUsernameLength(username):
-    if len(username) < 3 or len(username) > 150:
-        raise BadRequest(validators.INVALID_USERNAME)
-    
 def validateCreateUsername(data: dict) -> str:
     username = data.get("username")
     
@@ -46,17 +30,30 @@ def validateCreateUsername(data: dict) -> str:
     
     return username
 
+def validateGetUsername(data: dict) -> str:
+    username = data.get("username")
+    
+    u_username = validateUsername(username)  # Check if username is provided and not empty
+    validateUsernameExists(u_username)  # Check if username exists in the database
+    
+    return u_username
+
+def validateUniqueUsername(username: str) -> None:
+    if User.objects.filter(username=username).exists():
+        raise BadRequest(validators.TAKEN_USERNAME)
+
+def validateUsernameLength(username):
+    if len(username) < 3 or len(username) > 150:
+        raise BadRequest(validators.INVALID_USERNAME)
+
+
 def validateUsernameExists(username):
-    """
-    Checks if a user with the given username exists in the database.
-    """
     if not User.objects.filter(username=username).exists():
         raise ObjectDoesNotExist(validators.USERNAME_DOES_NOT_EXIST)
 
+
+#PASSWORD VALIDATIONS
 def validateCreatePassword(data):
-    """
-    Validates the password field in the provided data.
-    """
     password = data.get("password")
     
     validatePassword(password)
@@ -101,7 +98,94 @@ def validatePassword(password: str) -> str:
         raise BadRequest(validators.EMPTY_PASSWORD)
     
     return password
+
+#EMAIL VALIDATIONS
+def validateEmail(email: str) -> str:
+    if email is None:
+        raise BadRequest(validators.MISSING_EMAIL)
     
+    if not isinstance(email, str):
+        raise BadRequest(validators.INVALID_EMAIL_TYPE)
+    
+    email = email.strip().lower()
+    if not email:
+        raise BadRequest(validators.EMPTY_EMAIL)
+    
+    try:
+        validate_email(email)
+    except ValidationError:
+        raise BadRequest(validators.INVALID_EMAIL)
+    
+    return email
+
+def validateCreateEmail(data: dict) -> str:
+    email = data.get("email")
+    email = validateEmail(email)  # Validate email format
+    validateUniqueEmail(email)  # Check if email is unique 
+    
+    return email
+
+def validateGetEmail(data):
+    email = data.get("email")
+    
+    u_email = validateEmail(email)  # Validate email format
+    validateEmailExists(u_email)  # Check if email exists in the database
+
+def validateUniqueEmail(email: str) -> None:
+    if User.objects.filter(email=email).exists():
+        raise BadRequest(validators.TAKEN_EMAIL)
+
+def validateEmailExists(email):
+    
+    if not User.objects.filter(email=email).exists():
+        raise ObjectDoesNotExist(validators.EMAIL_DOES_NOT_EXIST)
+
+#User ID VALIDATIONS
+def validateGetUserID(data):
+    user_id = data.get("id")
+    
+    uid = validateUserID(user_id)  # Validate user ID format
+    validateUserIDExists(uid)
+    
+def validateUserID(user_id) -> int:
+    if user_id is None:
+        raise BadRequest(validators.MISSING_USER_ID)
+    
+    if isinstance(user_id, str) and not user_id.strip():
+        raise BadRequest(validators.EMPTY_USER_ID)
+    
+    try:
+        uid = int(user_id)
+    except (ValueError, TypeError):
+        raise BadRequest("User ID must be an integer.")
+    
+    if uid <= 0:
+        raise BadRequest(validators.INVALID_USER_ID_VALUE)
+    
+    return uid
+
+def validateUserIDExists(user_id: int) -> None:
+    if not User.objects.filter(id=user_id).exists():
+        raise ObjectDoesNotExist(validators.ID_DOES_NOT_EXIST)
+
+#VALIDATIONS FOR VIEW DATA
+def validateGetStudentData(data: dict) -> None:
+    if "id" in data:
+        validateGetUserID(data)
+    elif "username" in data:
+        validateGetUsername(data)
+    elif "email" in data:
+        validateGetEmail(data)
+    else:
+        raise BadRequest("At least one of 'id', 'username', or 'email' must be provided.")
+    
+def validateDeleteStudentData(data: dict) -> None:
+    if "id" in data:
+        validateGetUserID(data)
+    else:
+        raise BadRequest(validators.MISSING_USER_ID)
+
+#OTHER FIELD VALIDATIONS    
 def validateFirstName(data: dict) -> str:
     first_name = data.get("first_name")
     
@@ -130,46 +214,6 @@ def validateLastName(data: dict) -> str:
         raise BadRequest(validators.EMPTY_LAST_NAME)
 
     return last_name
-
-def validateEmail(email: str) -> str:
-    if email is None:
-        raise BadRequest(validators.MISSING_EMAIL)
-    
-    if not isinstance(email, str):
-        raise BadRequest(validators.INVALID_EMAIL_TYPE)
-    
-    email = email.strip().lower()
-    if not email:
-        raise BadRequest(validators.EMPTY_EMAIL)
-    
-    try:
-        validate_email(email)
-    except ValidationError:
-        raise BadRequest(validators.INVALID_EMAIL)
-    
-    return email
-    
-def validateGetEmail(data):
-    email = data.get("email")
-    
-    u_email = validateEmail(email)  # Validate email format
-    validateEmailExists(u_email)  # Check if email exists in the database
-
-def validateUniqueEmail(email: str) -> None:
-    if User.objects.filter(email=email).exists():
-        raise BadRequest(validators.TAKEN_EMAIL)
-
-def validateCreateEmail(data: dict) -> str:
-    email = data.get("email")
-    email = validateEmail(email)  # Validate email format
-    validateUniqueEmail(email)  # Check if email is unique 
-    
-    return email
-
-def validateEmailExists(email):
-    
-    if not User.objects.filter(email=email).exists():
-        raise ObjectDoesNotExist(validators.EMAIL_DOES_NOT_EXIST)
 
 def validateDateOfBirth(data: dict):
     dob_str = data.get("date_of_birth")
@@ -263,47 +307,3 @@ def validateHeight(data: dict) -> int:
         raise BadRequest(validators.LARGE_HEIGHT)
     
     return h
-
-def validateUserID(user_id) -> int:
-    if user_id is None:
-        raise BadRequest(validators.MISSING_USER_ID)
-    
-    if isinstance(user_id, str) and not user_id.strip():
-        raise BadRequest(validators.EMPTY_USER_ID)
-    
-    try:
-        uid = int(user_id)
-    except (ValueError, TypeError):
-        raise BadRequest("User ID must be an integer.")
-    
-    if uid <= 0:
-        raise BadRequest(validators.INVALID_USER_ID_VALUE)
-    
-    return uid
-
-def validateUserIDExists(user_id: int) -> None:
-    if not User.objects.filter(id=user_id).exists():
-        raise ObjectDoesNotExist(validators.ID_DOES_NOT_EXIST)
-
-def validateGetUserID(data):
-    user_id = data.get("id")
-    
-    uid = validateUserID(user_id)  # Validate user ID format
-    validateUserIDExists(uid)
-
-def validateGetStudentData(data: dict) -> None:
-    if "id" in data:
-        validateGetUserID(data)
-    elif "username" in data:
-        validateGetUsername(data)
-    elif "email" in data:
-        validateGetEmail(data)
-    else:
-        raise BadRequest("At least one of 'id', 'username', or 'email' must be provided.")
-    
-def validateDeleteStudentData(data: dict) -> None:
-    if "id" in data:
-        validateGetUserID(data)
-    else:
-        raise BadRequest(validators.MISSING_USER_ID)
-    
