@@ -5,7 +5,7 @@ from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import BadRequest, ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
 
-from UserApp.viewHandling.viewHandlingValidators import validateCreateUsername, validateCreatePassword, validateCreateEmail, validateDateOfBirth, validatePhoneNumber, validateWeight, validateHeight, validateLoginData, validateGetStudentData, validateDeleteStudentData, validateFirstName, validateLastName, validateUserID, validateUsername, validateEmail, validateUniqueEmail
+from UserApp.viewHandling.viewHandlingValidators import validateCreateUsername, validateCreatePassword, validateCreateEmail, validateDateOfBirth, validatePhoneNumber, validateWeight, validateHeight, validateLoginData, validateGetStudentData, validateDeleteStudentData, validateFirstName, validateLastName, validateUserID, validateUsername, validatePassword, validateEmail, validateUniqueEmail
 
 def userRegister(request):
     try:
@@ -50,14 +50,13 @@ def userLogin(request):
     
     try:    
         validateLoginData(data)
+        username = validateUsername(data["username"])
+        password = validatePassword(data["password"])
     except BadRequest as e:
-        return HttpResponse(
-            content=str(e),
-            content_type="Validation Error",
-            status=400)
+        return JsonResponse({"error": str(e)}, status=400)
     
     #Check if user exists
-    if not authenticateUser(request, data):
+    if not authenticateUser(request, {"username": username, "password": password}):
         return JsonResponse({"error": "Invalid credentials"}, status=401)
 
     response = createUserResponseData(request.user)
@@ -123,6 +122,8 @@ def userGet(request):
             user = User.objects.get(email=email)
     except BadRequest as e:
         return JsonResponse({"error": str(e)}, status=400)
+    except ObjectDoesNotExist as e:                 
+        return JsonResponse({"error": str(e)}, status=404)
     except User.DoesNotExist:
         return JsonResponse({"error": "User not found"}, status=404)
 
@@ -136,11 +137,8 @@ def userGetSelf(request):
     A view to handle retrieval of the authenticated user's data.
     """
     if not request.user.is_authenticated:
-        return HttpResponse(
-            content="User not logged in",
-            content_type="text/plain",
-            status=401
-        )
+        return JsonResponse({"error": "User not logged in"}, status=401)
+
     
     user = request.user
     userResponse = createUserResponseData(user)
@@ -165,6 +163,8 @@ def userDelete(request):
         validateDeleteStudentData(data)
     except BadRequest as e:
         return JsonResponse({"error": str(e)}, status=400)
+    except ObjectDoesNotExist as e:                 
+        return JsonResponse({"error": str(e)}, status=404)
 
     try:
         user_id = validateUserID(data["id"])
