@@ -555,4 +555,43 @@ class LoginUserTests(TestCase):
         self.assertEqual(response.status_code, 200)
         body = response.json()
         self.assertEqual(body["username"], "testuser")
-        self.asssertIn("message", body)
+        self.assertIn("message", body)
+
+        me = self.client.get(self.user_url)
+        self.assertEqual(me.status_code, 200)
+        self.assertEqual(me.json()["username"], "testuser")
+        
+    def test_missing_username(self):
+        self.register_user()
+        bad_payload = {
+            "password": "ValidPass123*"
+        }
+        
+        response = self.client.post(self.login_url, data=bad_payload, content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("error", response.json())
+        self.assertIn(V.MISSING_USERNAME, response.json()["error"])
+    
+    def test_empty_username(self):
+        self.register_user()
+        bad_payload = {
+            "username": " ",
+            "password": "ValidPass123*"
+        }
+        
+        response = self.client.post(self.login_url, data=bad_payload, content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("error", response.json())
+        self.assertIn(V.EMPTY_USERNAME, response.json()["error"])
+    
+    def test_invalid_username_type(self):
+        self.register_user()
+        bad_payload = {
+            "username": 12345,
+            "password": "ValidPass123*"
+        }
+        
+        response = self.client.post(self.login_url, data=bad_payload, content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("error", response.json())
+        self.assertIn(V.INVALID_USERNAME_TYPE, response.json()["error"])    

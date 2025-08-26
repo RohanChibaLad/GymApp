@@ -49,8 +49,8 @@ def userLogin(request):
         return JsonResponse({"error": "Invalid JSON"}, status=400)
     
     try:    
-        username = validateUsername(data["username"])
-        password = validatePassword(data["password"])
+        username = validateUsername(data.get("username"))
+        password = validatePassword(data.get("password"))
     except BadRequest as e:
         return JsonResponse({"error": str(e)}, status=400)
     
