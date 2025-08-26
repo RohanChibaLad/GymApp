@@ -40,7 +40,7 @@ def validateUsernameLength(username):
 def validateCreateUsername(data: dict) -> str:
     username = data.get("username")
     
-    validateUsername(username)  # Check if username is provided and not empty
+    username = validateUsername(username)  # Check if username is provided and not empty
     validateUniqueUsername(username)  # Check if username is unique
     validateUsernameLength(username)  # Check if username length is valid
     
@@ -161,8 +161,9 @@ def validateUniqueEmail(email: str) -> None:
 
 def validateCreateEmail(data: dict) -> str:
     email = data.get("email")
-    validateEmail(email)  # Validate email format
+    email = validateEmail(email)  # Validate email format
     validateUniqueEmail(email)  # Check if email is unique 
+    
     return email
 
 def validateEmailExists(email):

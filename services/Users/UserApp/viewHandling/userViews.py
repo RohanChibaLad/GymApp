@@ -5,7 +5,7 @@ from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import BadRequest, ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
 
-from UserApp.viewHandling.viewHandlingValidators import validateCreateUsername, validateCreatePassword, validateCreateEmail, validateDateOfBirth, validatePhoneNumber, validateWeight, validateHeight, validateLoginData, validateGetStudentData, validateDeleteStudentData
+from UserApp.viewHandling.viewHandlingValidators import validateCreateUsername, validateCreatePassword, validateCreateEmail, validateDateOfBirth, validatePhoneNumber, validateWeight, validateHeight, validateLoginData, validateGetStudentData, validateDeleteStudentData, validateFirstName, validateLastName, validateUserID, validateUsername, validateEmail, validateUniqueEmail
 
 def userRegister(request):
     try:
@@ -16,8 +16,10 @@ def userRegister(request):
     try:
         username = validateCreateUsername(data)
         password = validateCreatePassword(data)
+        first_name = validateFirstName(data)
+        last_name = validateLastName(data)
         email = validateCreateEmail(data)
-        dob = validateDateOfBirth(data)            # returns date (if you return it)
+        dob = validateDateOfBirth(data)            
         phone = validatePhoneNumber(data)
         weight = validateWeight(data)
         height = validateHeight(data)
@@ -27,8 +29,8 @@ def userRegister(request):
     user = User.objects.create_user(
         username=username,
         password=password,
-        first_name=data.get("first_name"),
-        last_name=data.get("last_name"),
+        first_name=first_name,
+        last_name=last_name,
         email=email,
         date_of_birth=dob,          
         phone_number=phone,
@@ -111,11 +113,14 @@ def userGet(request):
     try:
         validateGetStudentData(data)
         if "id" in data:
-            user = User.objects.get(id=data["id"])
+            user_id = validateUserID(data["id"])
+            user = User.objects.get(id=user_id)
         elif "username" in data:
-            user = User.objects.get(username=data["username"])
+            username = validateUsername(data["username"])
+            user = User.objects.get(username=username)
         else:
-            user = User.objects.get(email=data["email"])
+            email = validateEmail(data["email"])
+            user = User.objects.get(email=email)
     except BadRequest as e:
         return JsonResponse({"error": str(e)}, status=400)
     except User.DoesNotExist:
@@ -124,7 +129,7 @@ def userGet(request):
     userResponse = createUserResponseData(user)
     userResponse["message"] = "User data retrieved successfully"
     
-    return JsonResponse(data, status=200)
+    return JsonResponse(userResponse, status=200)
 
 def userGetSelf(request):
     """
@@ -138,9 +143,9 @@ def userGetSelf(request):
         )
     
     user = request.user
-    returnData = createUserResponseData(user)
-    returnData["message"] = "User data retrieved successfully"
-    return JsonResponse(returnData, status=200)
+    userResponse = createUserResponseData(user)
+    userResponse["message"] = "User data retrieved successfully"
+    return JsonResponse(userResponse, status=200)
     
 def userDelete(request):
     data = request.GET.dict()
@@ -162,7 +167,8 @@ def userDelete(request):
         return JsonResponse({"error": str(e)}, status=400)
 
     try:
-        user = User.objects.get(id=data["id"])
+        user_id = validateUserID(data["id"])
+        user = User.objects.get(id=user_id)
     except User.DoesNotExist:
         return JsonResponse({"error": "User not found"}, status=404)
 
