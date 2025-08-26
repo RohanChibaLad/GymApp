@@ -706,3 +706,8 @@ class LogoutUserTests(TestCase):
         response = self.client.post(self.logout_url)
         self.assertEqual(response.status_code, 200)
         self.assertIn("User logged out successfully", response.json()["message"])  
+
+    def test_unsuccessful_logout(self):
+        response = self.client.post(self.logout_url)
+        self.assertEqual(response.status_code, 401)
+        self.assertIn("User not logged in", response.json()["error"])  
