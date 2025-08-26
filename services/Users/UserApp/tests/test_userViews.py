@@ -630,3 +630,27 @@ class LoginUserTests(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("error", response.json())
         self.assertIn(V.INVALID_PASSWORD_TYPE, response.json()["error"])       
+        
+    def test_wrong_username(self):
+        self.register_user()
+        wrong_payload = {
+            "username": "wrongusername",
+            "password": "ValidPass123*"
+        }
+        
+        response = self.client.post(self.login_url, data=wrong_payload, content_type="application/json")
+        self.assertEqual(response.status_code, 401)
+        self.assertIn("error", response.json())
+        self.assertIn("Invalid credentials", response.json()["error"])    
+
+    def test_wrong_password(self):
+        self.register_user()
+        wrong_payload = {
+            "username": "testuser",
+            "password": "wrongpassword*"
+        }
+        
+        response = self.client.post(self.login_url, data=wrong_payload, content_type="application/json")
+        self.assertEqual(response.status_code, 401)
+        self.assertIn("error", response.json())
+        self.assertIn("Invalid credentials", response.json()["error"])  
