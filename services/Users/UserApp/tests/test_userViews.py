@@ -770,3 +770,37 @@ class GetUserTests(TestCase):
     def test_url_exists(self):
         response = self.client.get(self.user_url)
         self.assertNotEqual(response.status_code, 404)
+    
+    def test_get_user_logged_in(self):
+        self.register_user()
+        self.login_user()
+        response = self.client.get(self.user_url)
+        body = response.json()
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(body["username"], "testuser")
+        self.assertEqual(body["email"], "testuser@email.com")
+        self.assertEqual(body["phone_number"], "+447700900123")
+        self.assertEqual(body["weight"], "70.50")
+        self.assertEqual(body["height"], 180)
+    
+    def test_get_user_id_sucess(self):
+        created = self.register_user().json()
+        user_id = created["id"]
+        response = self.client.get(self.user_url, {"id": user_id})
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["id"], user_id)
+        
+    def test_get_by_username_success(self):
+        self.register_user()
+        response = self.client.get(self.user_url, {"username": "testuser"})
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["username"], "testuser")
+    
+    def test_get_by_email_success_case_insensitive(self):
+        self.register_user()
+        response = self.client.get(self.user_url, {"email": "TestUser@Email.com"})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["email"], "testuser@email.com")
