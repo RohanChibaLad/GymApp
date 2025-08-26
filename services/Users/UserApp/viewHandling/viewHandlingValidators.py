@@ -308,9 +308,6 @@ def validateGetStudentData(data: dict) -> None:
         raise BadRequest("At least one of 'id', 'username', or 'email' must be provided.")
     
 def validateDeleteStudentData(data: dict) -> None:
-    """
-    Validates the data for deleting a user.
-    """
     if "id" in data:
         validateGetUserID(data)
     else:

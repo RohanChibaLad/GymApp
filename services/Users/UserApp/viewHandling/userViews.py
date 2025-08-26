@@ -8,46 +8,34 @@ from django.contrib.auth import authenticate, login, logout
 from UserApp.viewHandling.viewHandlingValidators import validateCreateUsername, validateCreatePassword, validateCreateEmail, validateDateOfBirth, validatePhoneNumber, validateWeight, validateHeight, validateLoginData, validateGetStudentData, validateDeleteStudentData
 
 def userRegister(request):
-    """
-    A view to handle user registration.
-    """
     try:
         data = json.loads(request.body.decode("utf-8"))
     except ValueError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
-    
-    
-    #Validate required fields - TO DO
+
     try:
-        validateCreateUsername(data) # Validating user data
-        validateCreatePassword(data)  # Validating password --> also validate first and last name
-        validateCreateEmail(data)       # Validating email
-        validateDateOfBirth(data) # Validating date of birth
-        validatePhoneNumber(data)  # Validating phone number
-        validateWeight(data)       # Validating weight
-        validateHeight(data)       # Validating height
-        
-    except BadRequest as e: # Catching validation errors
-        return HttpResponse(
-            content=str(e),
-            content_type="Validation Error",
-            status=400)
-    
-    #Add user to database
+        username = validateCreateUsername(data)
+        password = validateCreatePassword(data)
+        email = validateCreateEmail(data)
+        dob = validateDateOfBirth(data)            # returns date (if you return it)
+        phone = validatePhoneNumber(data)
+        weight = validateWeight(data)
+        height = validateHeight(data)
+    except BadRequest as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
     user = User.objects.create_user(
-        username=data.get("username"),
-        password=data.get("password"), 
+        username=username,
+        password=password,
         first_name=data.get("first_name"),
         last_name=data.get("last_name"),
-        email=data.get("email"),
-        date_of_birth=data.get("date_of_birth"),
-        phone_number=data.get("phone_number"),
-        weight=data.get("weight"),
-        height=data.get("height")
+        email=email,
+        date_of_birth=dob,          
+        phone_number=phone,
+        weight=weight,
+        height=height,
     )
-    
-    
-    return JsonResponse({"User Created!": True, "User ID": user.id, "Name": user.first_name}, status=201,)
+    return JsonResponse({"ok": True, "id": user.id, "name": user.first_name}, status=201)
 
 def userLogin(request):
     """
@@ -116,37 +104,27 @@ def createUserResponseData(user: User) -> dict:
     }
 
 def userGet(request):
-    """
-    A view to handle user retrieval.
-    """
-    
-    try:
-        data = json.loads(request.body.decode("utf-8"))
-    except ValueError:
-        return JsonResponse({"error": "Invalid JSON"}, status=400)
-    
-    data = request.GET.dict() 
-    
-    if len(data) == 0:
+    data = request.GET.dict()
+    if not data:
         return userGetSelf(request)
-    
+
     try:
         validateGetStudentData(data)
+        if "id" in data:
+            user = User.objects.get(id=data["id"])
+        elif "username" in data:
+            user = User.objects.get(username=data["username"])
+        else:
+            user = User.objects.get(email=data["email"])
     except BadRequest as e:
         return JsonResponse({"error": str(e)}, status=400)
-    except ObjectDoesNotExist as e:
-        return JsonResponse({"error": str(e)}, status=404)
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
 
-    if "id" in data:
-        user = User.objects.get(id=data["id"])
-    elif "username" in data:
-        user = User.objects.get(username=data["username"])
-    else:
-        user = User.objects.get(email=data["email"])
-        
-    returnData = createUserResponseData(user)
-    returnData["message"] = "User data retrieved successfully"
-    return JsonResponse(returnData, status=200)
+    userResponse = createUserResponseData(user)
+    userResponse["message"] = "User data retrieved successfully"
+    
+    return JsonResponse(data, status=200)
 
 def userGetSelf(request):
     """
@@ -165,27 +143,28 @@ def userGetSelf(request):
     return JsonResponse(returnData, status=200)
     
 def userDelete(request):
-    """
-    A view to handle user deletion.
-    """
+    data = request.GET.dict()
+
     try:
-        data = json.loads(request.body.decode("utf-8"))
+        raw = (request.body or b"").decode("utf-8")
+        if raw.strip():
+            body = json.loads(raw)
+            if isinstance(body, dict):
+                data.update(body)
+            else:
+                return JsonResponse({"error": "Invalid JSON"}, status=400)
     except ValueError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
-    
-    data = request.GET.dict()
-    
+
     try:
         validateDeleteStudentData(data)
     except BadRequest as e:
         return JsonResponse({"error": str(e)}, status=400)
-    except ObjectDoesNotExist as e:
-        return JsonResponse({"error": str(e)}, status=404)
-    
-    user = User.objects.get(id=data["id"])
-    if not user:
+
+    try:
+        user = User.objects.get(id=data["id"])
+    except User.DoesNotExist:
         return JsonResponse({"error": "User not found"}, status=404)
-    
+
     user.delete()
-    
     return JsonResponse({"message": "User deleted successfully"}, status=200)
