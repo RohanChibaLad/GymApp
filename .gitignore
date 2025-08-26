@@ -48,3 +48,4 @@ volumes/
 !.vscode/tasks.json
 .idea/
 *.iml
+services/Users/db_data/db.sqlite3
