@@ -711,3 +711,14 @@ class LogoutUserTests(TestCase):
         response = self.client.post(self.logout_url)
         self.assertEqual(response.status_code, 401)
         self.assertIn("User not logged in", response.json()["error"])  
+
+    def test_double_logout(self):
+        self.register_user()
+        self.login_user()
+
+        r1 = self.client.post(self.logout_url)
+        self.assertEqual(r1.status_code, 200)
+
+        r2 = self.client.post(self.logout_url)
+        self.assertEqual(r2.status_code, 401)
+        self.assertEqual(r2.json().get("error"), "User not logged in")
