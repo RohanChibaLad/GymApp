@@ -268,42 +268,55 @@ def validateUniquePhoneNumber(phone_number):
     if User.objects.filter(phone_number=phone_number).exists():
         raise BadRequest(validators.TAKEN_PHONE_NUMBER)
 
+# validators: weight/height
+
+from decimal import Decimal, InvalidOperation
+
 def validateWeight(data: dict) -> Decimal:
     weight = data.get("weight")
-    
+
     if weight is None:
         raise BadRequest(validators.MISSING_WEIGHT)
-    
+
+    if isinstance(weight, str) and not weight.strip():
+        raise BadRequest(validators.EMPTY_WEIGHT)
+
+    if isinstance(weight, (list, dict, bool)):
+        raise BadRequest(validators.INVALID_WEIGHT_TYPE)
+
     try:
-        w = Decimal(str(weight))  # robust to int/float/str
-    except (InvalidOperation, TypeError):
+        w = Decimal(str(weight))   
+    except (InvalidOperation, TypeError, ValueError):
         raise BadRequest(validators.INVALID_WEIGHT)
-    
+
     if w < 0:
         raise BadRequest(validators.SMALL_WEIGHT)
-    
     if w > Decimal("500"):
         raise BadRequest(validators.LARGE_WEIGHT)
-    
-    w = w.quantize(Decimal("0.01"))
-    return w
+
+    return w.quantize(Decimal("0.01"))
 
 
 def validateHeight(data: dict) -> int:
     height = data.get("height")
-    
+
     if height is None:
         raise BadRequest(validators.MISSING_HEIGHT)
-    
+
+    if isinstance(height, str) and not height.strip():
+        raise BadRequest(validators.EMPTY_HEIGHT)
+
+    if isinstance(height, (list, dict, bool, float)):
+        raise BadRequest(validators.INVALID_HEIGHT_TYPE)
+
     try:
-        h = int(height)
+        h = int(height)  
     except (ValueError, TypeError):
         raise BadRequest(validators.INVALID_HEIGHT)
-    
+
     if h < 40:
         raise BadRequest(validators.SMALL_HEIGHT)
-    
     if h > 300:
         raise BadRequest(validators.LARGE_HEIGHT)
-    
+
     return h

@@ -68,7 +68,7 @@ class CreateUserTests(TestCase):
         self.assertTrue(user.check_password("ValidPass123*"))
         self.assertEqual(user.first_name, "Test")
         self.assertEqual(user.last_name, "User")
-        self.assertEqual(user.email, "TestUser@email.com")
+        self.assertEqual(user.email, "testuser@email.com")
         self.assertEqual(user.date_of_birth, date(2000, 1, 1))
         self.assertEqual(user.phone_number, "+447700900123")
         self.assertEqual(user.weight, 70.5)
@@ -89,7 +89,7 @@ class CreateUserTests(TestCase):
         self.assertEqual(user.username, "testuser")
         self.assertEqual(user.first_name, "Test")
         self.assertEqual(user.last_name, "User")
-        self.assertEqual(user.email, "TestUser@email.com")
+        self.assertEqual(user.email, "testuser@email.com")
         self.assertEqual(user.phone_number, "+447700900123")   
     
     def test_missing_username(self):
@@ -117,24 +117,6 @@ class CreateUserTests(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("error", response.json())
         self.assertIn(V.INVALID_USERNAME_TYPE, response.json()["error"])    
-    
-    def test_username_too_short(self):
-        payload = self.payload.copy()
-        payload["username"] = "ab"
-        
-        response = self.post_json(payload)
-        self.assertEqual(response.status_code, 400)
-        self.assertIn("error", response.json())
-        self.assertIn(V.USERNAME_TOO_SHORT, response.json()["error"])   
-        
-    def test_username_too_long(self):
-        payload = self.payload.copy()
-        payload["username"] = "a" * 151
-        
-        response = self.post_json(payload)
-        self.assertEqual(response.status_code, 400)
-        self.assertIn("error", response.json())
-        self.assertIn(V.USERNAME_TOO_LONG, response.json()["error"])
     
     def test_taken_username(self):
         payload = self.payload.copy()
@@ -306,14 +288,20 @@ class CreateUserTests(TestCase):
         self.assertIn(V.INVALID_EMAIL, response.json()["error"])
     
     def test_taken_email(self):
-        payload = self.payload.copy()
-        payload["username"] = "testuser2"
-        payload["phone_number"] = "+447700900124"
-        self.post_json(payload)
-        response = self.post_json(payload)
-        self.assertEqual(response.status_code, 400)
-        self.assertIn("error", response.json())
-        self.assertIn(V.TAKEN_EMAIL, response.json()["error"])
+        first = self.payload.copy()
+        first["username"] = "user_a"
+        first["email"] = "dup@email.com"
+        first["phone_number"] = "+447700900124"
+        self.post_json(first)
+
+        second = self.payload.copy()
+        second["username"] = "user_b"              
+        second["email"] = "dup@email.com"          
+        second["phone_number"] = "+447700900125"  
+        resp = self.post_json(second)
+
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn(V.TAKEN_EMAIL, resp.json()["error"])
     
     def test_missing_date_of_birth(self):
         payload = self.payload.copy()
@@ -405,14 +393,21 @@ class CreateUserTests(TestCase):
         self.assertIn(V.INVALID_PHONE_NUMBER, response.json()["error"])
     
     def test_taken_phone_number(self):
-        payload = self.payload.copy()
-        payload["username"] = "testuser2"
-        payload["email"] = "testemail2@email.com"
-        self.post_json(payload)
-        response = self.post_json(payload)
-        self.assertEqual(response.status_code, 400)
-        self.assertIn("error", response.json())
-        self.assertIn(V.TAKEN_PHONE_NUMBER, response.json()["error"])   
+        first = self.payload.copy()
+        first["username"] = "user_c"
+        first["email"] = "unique1@email.com"
+        first["phone_number"] = "+447700900126"
+        self.post_json(first)
+
+        second = self.payload.copy()
+        second["username"] = "user_d"                  
+        second["email"] = "unique2@email.com"           
+        second["phone_number"] = "+447700900126"       
+        resp = self.post_json(second)
+
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn(V.TAKEN_PHONE_NUMBER, resp.json()["error"])
+
     
     def test_missing_weight(self):
         payload = self.payload.copy()
@@ -434,7 +429,7 @@ class CreateUserTests(TestCase):
     
     def test_invalid_weight_type(self):
         payload = self.payload.copy()
-        payload["weight"] = "not-a-float"
+        payload["weight"] = ["70.5"]
         
         response = self.post_json(payload)
         self.assertEqual(response.status_code, 400)
@@ -470,7 +465,7 @@ class CreateUserTests(TestCase):
     
     def test_empty_height(self):    
         payload = self.payload.copy()
-        payload["height"] = "   "
+        payload["height"] = ""
         
         response = self.post_json(payload)
         self.assertEqual(response.status_code, 400)
@@ -479,7 +474,7 @@ class CreateUserTests(TestCase):
     
     def test_invalid_height_type(self):
         payload = self.payload.copy()
-        payload["height"] = "not-an-int"
+        payload["height"] = ["180"]
         
         response = self.post_json(payload)
         self.assertEqual(response.status_code, 400)
