@@ -500,6 +500,59 @@ class CreateUserTests(TestCase):
         self.assertIn(V.LARGE_HEIGHT, response.json()["error"])
     
     
-            
+class LoginUserTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        try:
+            self.user_url = reverse("user")
+        except NoReverseMatch:
+            self.user_url = "/user/"
+        try:
+            self.login_url = reverse("login")
+        except NoReverseMatch:
+            self.login_url = "/login/"
+        try:
+            self.logout_url = reverse("logout")
+        except NoReverseMatch:
+            self.logout_url = "/logout/"
+
+        self.create_payload = {
+            "username": "testuser",
+            "password": "ValidPass123*",
+            "first_name": "Test",
+            "last_name": "User",
+            "email": "TestUser@Email.com",
+            "date_of_birth": "2000-01-01",
+            "phone_number": "+447700900123",
+            "weight": 70.5,
+            "height": 180,
+        }
+        self.login_payload = {
+            "username": "testuser",
+            "password": "ValidPass123*",
+        }
+
+    def post_json(self, url, data):
+        return self.client.post(url, data=json.dumps(data), content_type="application/json")
+
+    def register_user(self, payload=None):
+        payload = payload or self.create_payload
+        return self.post_json(self.user_url, payload)
+
+    def test_url_exists(self):    
+        response = self.client.get(self.login_url)
+        self.assertNotEqual(response.status_code, 404)
+    
+    def test_invalid_json(self):
+        response = self.client.post(self.login_url, data="not json", content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("error", response.json())
+    
+    def test_successful_login(self):
+        self.register_user()
+        response = self.client.post(self.login_url, data=self.login_payload, content_type="application/json")
         
-        
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertEqual(body["username"], "testuser")
+        self.asssertIn("message", body)
