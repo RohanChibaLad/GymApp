@@ -22,12 +22,12 @@ def user(request):
         return userGet(request)
     elif request.method == "DELETE":
         return userDelete(request)
-
-    return HttpResponse(
-        content="Method not allowed",
-        content_type="text/plain",
-        status=400
-    )
+    else:
+        return HttpResponse(
+            content="Method not allowed",
+            content_type="text/plain",
+            status=400
+        )
 
 def login(request):
     """

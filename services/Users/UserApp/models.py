@@ -9,7 +9,8 @@ class User(AbstractUser): # Custom User model inheriting from AbstractUser
     date_of_birth = models.DateField(null=True, blank=True) #Date of birth field that can be null or blank
     
     #Phone number field with regex validation
-    phone_number = models.CharField( 
+    phone_number = models.CharField(
+        unique=True, 
         max_length=15, 
         null=True, 
         blank=True, 
