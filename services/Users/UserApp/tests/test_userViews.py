@@ -698,3 +698,11 @@ class LogoutUserTests(TestCase):
     def test_url_exists(self):    
         response = self.client.get(self.logout_url)
         self.assertNotEqual(response.status_code, 404)
+
+    def test_successful_logout(self):
+        self.register_user()
+        self.login_user()
+        
+        response = self.client.post(self.logout_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("User logged out successfully", response.json()["message"])  
