@@ -41,17 +41,20 @@ class UserUniquenessTests(TransactionTestCase):
     reset_sequences = True  # use DB transactions for IntegrityError
 
     def test_unique_email(self):
-        User.objects.create_user(username="u1", email="dup@example.com", password="x")
+        User.objects.create_user(username="user1", email="test@example.com", password="x")
         with self.assertRaises(IntegrityError):
-            User.objects.create_user(username="u2", email="dup@example.com", password="x")
+            User.objects.create_user(username="user2", email="test@example.com", password="x")
 
     def test_unique_username(self):
-        User.objects.create_user(username="dupuser", email="a@a.com", password="x")
+        User.objects.create_user(username="user1", email="test1@example.com", password="x")
         with self.assertRaises(IntegrityError):
-            # IMPORTANT: use a different email so it fails on username, not email
-            User.objects.create_user(username="dupuser", email="b@b.com", password="x")
+            User.objects.create_user(username="user1", email="test2@example.com", password="x")
 
-
+    def test_unique_phone_number(self):
+        User.objects.create_user(username="user1", email="test@example.com", phone_number="+1234567890", password="x")
+        with self.assertRaises(IntegrityError):
+            User.objects.create_user(username="user2", email="test2@example.com", phone_number="+1234567890", password="x")
+    
 class UserFieldValidationTests(TestCase):
     def test_email_format_invalid_on_full_clean(self):
         u = User(username="bademail", email="not-an-email")
