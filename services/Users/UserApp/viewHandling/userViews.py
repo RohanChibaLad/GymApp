@@ -5,7 +5,7 @@ from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import BadRequest, ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
 
-from UserApp.viewHandling.viewHandlingValidators import validateCreateUsername, validateCreatePassword, validateCreateEmail, validateDateOfBirth, validatePhoneNumber, validateWeight, validateHeight, validateLoginData, validateGetStudentData, validateDeleteStudentData, validateFirstName, validateLastName, validateUserID, validateUsername, validatePassword, validateEmail, validateUniqueEmail
+from UserApp.viewHandling.viewHandlingValidators import validateCreateUsername, validateCreatePassword, validateCreateEmail, validateDateOfBirth, validatePhoneNumber, validateWeight, validateHeight, validateGetStudentData, validateDeleteStudentData, validateFirstName, validateLastName, validateUserID, validateUsername, validatePassword, validateEmail, validateUniqueEmail
 
 def userRegister(request):
     try:
@@ -49,7 +49,6 @@ def userLogin(request):
         return JsonResponse({"error": "Invalid JSON"}, status=400)
     
     try:    
-        validateLoginData(data)
         username = validateUsername(data["username"])
         password = validatePassword(data["password"])
     except BadRequest as e:

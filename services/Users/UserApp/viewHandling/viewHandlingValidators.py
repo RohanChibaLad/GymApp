@@ -291,13 +291,6 @@ def validateGetUserID(data):
     uid = validateUserID(user_id)  # Validate user ID format
     validateUserIDExists(uid)
 
-def validateLoginData(data):
-    username = data.get("username")
-    password = data.get("password")
-    
-    validateUsername(username)  # Check if username is provided and not empty
-    validatePassword(password)  # Check if password is provided and not empty
-
 def validateGetStudentData(data: dict) -> None:
     if "id" in data:
         validateGetUserID(data)
