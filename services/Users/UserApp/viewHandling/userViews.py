@@ -63,18 +63,15 @@ def userLogin(request):
     return JsonResponse(response, status=200)
     
 def userLogout(request):
-
     """
     A view to handle user logout.
     """
     if request.user.is_authenticated:
         logout(request)
         return JsonResponse({"message": "User logged out successfully"}, status=200)
-    return HttpResponse(
-        content="User not logged in",
-        content_type="text/plain",
-        status=401
-    )
+    return JsonResponse({"error": "User not logged in"}, status=401)
+
+
     
 
 def authenticateUser(request, requestData: dict):
