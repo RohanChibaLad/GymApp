@@ -5,49 +5,39 @@ from django.http import JsonResponse, HttpResponse
 from django.core.exceptions import BadRequest, ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
 
-from UserApp.viewHandling.viewHandlingValidators import validateCreateUsername, validateCreatePassword, validateCreateEmail, validateDateOfBirth, validatePhoneNumber, validateWeight, validateHeight, validateLoginData, validateGetStudentData, validateDeleteStudentData
+from UserApp.viewHandling.viewHandlingValidators import validateCreateUsername, validateCreatePassword, validateCreateEmail, validateDateOfBirth, validatePhoneNumber, validateWeight, validateHeight, validateGetStudentData, validateDeleteStudentData, validateFirstName, validateLastName, validateUserID, validateUsername, validatePassword, validateEmail, validateUniqueEmail
 
 def userRegister(request):
-    """
-    A view to handle user registration.
-    """
     try:
         data = json.loads(request.body.decode("utf-8"))
     except ValueError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
-    
-    
-    #Validate required fields - TO DO
+
     try:
-        validateCreateUsername(data) # Validating user data
-        validateCreatePassword(data)  # Validating password --> also validate first and last name
-        validateCreateEmail(data)       # Validating email
-        validateDateOfBirth(data) # Validating date of birth
-        validatePhoneNumber(data)  # Validating phone number
-        validateWeight(data)       # Validating weight
-        validateHeight(data)       # Validating height
-        
-    except BadRequest as e: # Catching validation errors
-        return HttpResponse(
-            content=str(e),
-            content_type="Validation Error",
-            status=400)
-    
-    #Add user to database
+        username = validateCreateUsername(data)
+        password = validateCreatePassword(data)
+        first_name = validateFirstName(data)
+        last_name = validateLastName(data)
+        email = validateCreateEmail(data)
+        dob = validateDateOfBirth(data)            
+        phone = validatePhoneNumber(data)
+        weight = validateWeight(data)
+        height = validateHeight(data)
+    except BadRequest as e:
+        return JsonResponse({"error": str(e)}, status=400)
+
     user = User.objects.create_user(
-        username=data.get("username"),
-        password=data.get("password"), 
-        first_name=data.get("first_name"),
-        last_name=data.get("last_name"),
-        email=data.get("email"),
-        date_of_birth=data.get("date_of_birth"),
-        phone_number=data.get("phone_number"),
-        weight=data.get("weight"),
-        height=data.get("height")
+        username=username,
+        password=password,
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        date_of_birth=dob,          
+        phone_number=phone,
+        weight=weight,
+        height=height,
     )
-    
-    
-    return JsonResponse({"User Created!": True, "User ID": user.id, "Name": user.first_name}, status=201,)
+    return JsonResponse({"ok": True, "id": user.id, "name": user.first_name}, status=201)
 
 def userLogin(request):
     """
@@ -59,15 +49,13 @@ def userLogin(request):
         return JsonResponse({"error": "Invalid JSON"}, status=400)
     
     try:    
-        validateLoginData(data)
+        username = validateUsername(data.get("username"))
+        password = validatePassword(data.get("password"))
     except BadRequest as e:
-        return HttpResponse(
-            content=str(e),
-            content_type="Validation Error",
-            status=400)
+        return JsonResponse({"error": str(e)}, status=400)
     
     #Check if user exists
-    if not authenticateUser(request, data):
+    if not authenticateUser(request, {"username": username, "password": password}):
         return JsonResponse({"error": "Invalid credentials"}, status=401)
 
     response = createUserResponseData(request.user)
@@ -75,19 +63,14 @@ def userLogin(request):
     return JsonResponse(response, status=200)
     
 def userLogout(request):
-
     """
     A view to handle user logout.
     """
     if request.user.is_authenticated:
         logout(request)
         return JsonResponse({"message": "User logged out successfully"}, status=200)
-    return HttpResponse(
-        content="User not logged in",
-        content_type="text/plain",
-        status=401
-    )
-    
+    return JsonResponse({"error": "User not logged in"}, status=401)
+
 
 def authenticateUser(request, requestData: dict):
     """
@@ -116,76 +99,72 @@ def createUserResponseData(user: User) -> dict:
     }
 
 def userGet(request):
-    """
-    A view to handle user retrieval.
-    """
-    
-    try:
-        data = json.loads(request.body.decode("utf-8"))
-    except ValueError:
-        return JsonResponse({"error": "Invalid JSON"}, status=400)
-    
-    data = request.GET.dict() 
-    
-    if len(data) == 0:
+    data = request.GET.dict()
+    if not data:
         return userGetSelf(request)
-    
+
     try:
         validateGetStudentData(data)
+        if "id" in data:
+            user_id = validateUserID(data["id"])
+            user = User.objects.get(id=user_id)
+        elif "username" in data:
+            username = validateUsername(data["username"])
+            user = User.objects.get(username=username)
+        else:
+            email = validateEmail(data["email"])
+            user = User.objects.get(email=email)
     except BadRequest as e:
         return JsonResponse({"error": str(e)}, status=400)
-    except ObjectDoesNotExist as e:
+    except ObjectDoesNotExist as e:                 
         return JsonResponse({"error": str(e)}, status=404)
+    except User.DoesNotExist:
+        return JsonResponse({"error": "User not found"}, status=404)
 
-    if "id" in data:
-        user = User.objects.get(id=data["id"])
-    elif "username" in data:
-        user = User.objects.get(username=data["username"])
-    else:
-        user = User.objects.get(email=data["email"])
-        
-    returnData = createUserResponseData(user)
-    returnData["message"] = "User data retrieved successfully"
-    return JsonResponse(returnData, status=200)
+    userResponse = createUserResponseData(user)
+    userResponse["message"] = "User data retrieved successfully"
+    
+    return JsonResponse(userResponse, status=200)
 
 def userGetSelf(request):
     """
     A view to handle retrieval of the authenticated user's data.
     """
     if not request.user.is_authenticated:
-        return HttpResponse(
-            content="User not logged in",
-            content_type="text/plain",
-            status=401
-        )
+        return JsonResponse({"error": "User not logged in"}, status=401)
+
     
     user = request.user
-    returnData = createUserResponseData(user)
-    returnData["message"] = "User data retrieved successfully"
-    return JsonResponse(returnData, status=200)
+    userResponse = createUserResponseData(user)
+    userResponse["message"] = "User data retrieved successfully"
+    return JsonResponse(userResponse, status=200)
     
 def userDelete(request):
-    """
-    A view to handle user deletion.
-    """
+    data = request.GET.dict()
+
     try:
-        data = json.loads(request.body.decode("utf-8"))
+        raw = (request.body or b"").decode("utf-8")
+        if raw.strip():
+            body = json.loads(raw)
+            if isinstance(body, dict):
+                data.update(body)
+            else:
+                return JsonResponse({"error": "Invalid JSON"}, status=400)
     except ValueError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
-    
-    data = request.GET.dict()
-    
+
     try:
         validateDeleteStudentData(data)
     except BadRequest as e:
         return JsonResponse({"error": str(e)}, status=400)
-    except ObjectDoesNotExist as e:
+    except ObjectDoesNotExist as e:                 
         return JsonResponse({"error": str(e)}, status=404)
-    
-    user = User.objects.get(id=data["id"])
-    if not user:
+
+    try:
+        user_id = validateUserID(data["id"])
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
         return JsonResponse({"error": "User not found"}, status=404)
-    
+
     user.delete()
-    
     return JsonResponse({"message": "User deleted successfully"}, status=200)
