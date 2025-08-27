@@ -902,3 +902,39 @@ class DeleteUserTests(TestCase):
     def test_url_exists(self):
         response = self.client.get(self.user_url)
         self.assertNotEqual(response.status_code, 404)
+   
+    def test_invalid_json_body(self):
+        response = self.client.delete(self.user_url, data="not json", content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("error", response.json())
+    
+    def test_delete_success(self):
+        created = self.register_user()
+        self.assertEqual(created.status_code, 201)
+        uid = created.json()["id"]
+
+        response = self.delete_json(self.user_url, {"id": uid})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["message"], "User deleted successfully")
+
+        self.assertFalse(User.objects.filter(id=uid).exists())
+
+    def test_delete_with_string_id(self):
+        created = self.register_user()
+        uid = str(created.json()["id"]) 
+        response = self.delete_json(self.user_url, {"id": uid})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["message"], "User deleted successfully")
+
+    def test_double_delete(self):
+        created = self.register_user()
+        uid = created.json()["id"]
+
+        response1 = self.delete_json(self.user_url, {"id": uid})
+        self.assertEqual(response1.status_code, 200)
+
+        response2 = self.delete_json(self.user_url, {"id": uid})
+        self.assertEqual(response2.status_code, 404)
+        self.assertTrue(
+            V.ID_DOES_NOT_EXIST in response2.json()["error"] or response2.json()["error"] == "User not found"
+        )
