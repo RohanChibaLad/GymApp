@@ -807,21 +807,35 @@ class GetUserTests(TestCase):
     
     def test_get_by_id_invalid_type(self):
         self.register_user()
-        resp = self.client.get(self.user_url, {"id": "abc"})
+        response = self.client.get(self.user_url, {"id": "abc"})
         
-        self.assertEqual(resp.status_code, 400)
-        self.assertIn("User ID must be an integer.", resp.json()["error"])
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("User ID must be an integer.", response.json()["error"])
 
     def test_get_by_id_empty(self):
         self.register_user()
-        resp = self.client.get(self.user_url, {"id": ""})
+        response = self.client.get(self.user_url, {"id": ""})
         
-        self.assertEqual(resp.status_code, 400)
-        self.assertIn(V.EMPTY_USER_ID, resp.json()["error"])
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(V.EMPTY_USER_ID, response.json()["error"])
 
     def test_get_by_id_not_found(self):
         self.register_user()
-        resp = self.client.get(self.user_url, {"id": 999999})
+        response = self.client.get(self.user_url, {"id": 999999})
         
-        self.assertEqual(resp.status_code, 404)
-        self.assertIn(V.ID_DOES_NOT_EXIST, resp.json()["error"])        
+        self.assertEqual(response.status_code, 404)
+        self.assertIn(V.ID_DOES_NOT_EXIST, response.json()["error"])        
+
+    def test_get_by_username_empty(self):
+        self.register_user()
+        response = self.client.get(self.user_url, {"username": ""})
+        
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(V.EMPTY_USERNAME, response.json()["error"])
+
+    def test_get_by_username_not_found(self):
+        self.register_user()
+        response = self.client.get(self.user_url, {"username": "testuser9999"})
+        
+        self.assertEqual(response.status_code, 404)
+        self.assertIn(V.USERNAME_DOES_NOT_EXIST, response.json()["error"])         
