@@ -72,8 +72,6 @@ def userLogout(request):
     return JsonResponse({"error": "User not logged in"}, status=401)
 
 
-    
-
 def authenticateUser(request, requestData: dict):
     """
     A function to authenticate the user.
