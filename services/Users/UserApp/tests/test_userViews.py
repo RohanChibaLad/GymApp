@@ -833,9 +833,23 @@ class GetUserTests(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn(V.EMPTY_USERNAME, response.json()["error"])
 
-    def test_get_by_username_not_found(self):
+    def test_get_by_email_not_found(self):
         self.register_user()
-        response = self.client.get(self.user_url, {"username": "testuser9999"})
+        response = self.client.get(self.user_url, {"email": "missing@email.com"})
         
         self.assertEqual(response.status_code, 404)
-        self.assertIn(V.USERNAME_DOES_NOT_EXIST, response.json()["error"])         
+        self.assertIn(V.EMAIL_DOES_NOT_EXIST, response.json()["error"])         
+    
+    def test_get_by_email_empty(self):
+        self.register_user()
+        response = self.client.get(self.user_url, {"email": ""})
+        
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(V.EMPTY_EMAIL, response.json()["error"])
+
+    def test_get_by_invalid_email(self):
+        self.register_user()
+        response = self.client.get(self.user_url, {"email": "not-an-email"})
+        
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(V.INVALID_EMAIL, response.json()["error"])       
