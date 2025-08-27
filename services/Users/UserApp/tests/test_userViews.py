@@ -905,6 +905,7 @@ class DeleteUserTests(TestCase):
    
     def test_invalid_json_body(self):
         response = self.client.delete(self.user_url, data="not json", content_type="application/json")
+        
         self.assertEqual(response.status_code, 400)
         self.assertIn("error", response.json())
     
@@ -914,6 +915,7 @@ class DeleteUserTests(TestCase):
         uid = created.json()["id"]
 
         response = self.delete_json(self.user_url, {"id": uid})
+        
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["message"], "User deleted successfully")
 
@@ -923,6 +925,7 @@ class DeleteUserTests(TestCase):
         created = self.register_user()
         uid = str(created.json()["id"]) 
         response = self.delete_json(self.user_url, {"id": uid})
+        
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["message"], "User deleted successfully")
 
@@ -937,4 +940,36 @@ class DeleteUserTests(TestCase):
         self.assertEqual(response2.status_code, 404)
         self.assertTrue(
             V.ID_DOES_NOT_EXIST in response2.json()["error"] or response2.json()["error"] == "User not found"
+        )
+
+    def test_missing_id(self):
+        response = self.delete_json(self.user_url, {})
+        
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(V.MISSING_USER_ID, response.json()["error"])
+
+    def test_empty_id(self):
+        response = self.delete_json(self.user_url, {"id": "   "})
+        
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(V.EMPTY_USER_ID, response.json()["error"])
+
+    def test_non_integer_id(self):
+        response = self.delete_json(self.user_url, {"id": "abc"})
+        
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("must be an integer", response.json()["error"])
+
+    def test_negative_id(self):
+        response = self.delete_json(self.user_url, {"id": -1})
+        
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(V.INVALID_USER_ID_VALUE, response.json()["error"])
+
+    def test_id_not_found(self):
+        response = self.delete_json(self.user_url, {"id": 999999})
+
+        self.assertIn(response.status_code, (404,))  
+        self.assertTrue(
+            V.ID_DOES_NOT_EXIST in response.json()["error"] or response.json()["error"] == "User not found"
         )
