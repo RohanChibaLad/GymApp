@@ -853,3 +853,17 @@ class GetUserTests(TestCase):
         
         self.assertEqual(response.status_code, 400)
         self.assertIn(V.INVALID_EMAIL, response.json()["error"])       
+    
+    def test_get_by_id_gets_precedence(self):
+        a = self.register_user().json()
+        self.create_payload["username"] = "other"
+        self.create_payload["email"] = "other@email.com"
+        self.create_payload["phone_number"] = "+447700900124"
+        b = self.register_user(self.create_payload).json()
+
+        response = self.client.get(
+            self.user_url,
+            {"id": a["id"], "username": "other", "email": "other@email.com"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["id"], a["id"])
