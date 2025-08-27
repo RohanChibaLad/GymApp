@@ -804,3 +804,24 @@ class GetUserTests(TestCase):
         response = self.client.get(self.user_url, {"email": "TestUser@Email.com"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["email"], "testuser@email.com")
+    
+    def test_get_by_id_invalid_type(self):
+        self.register_user()
+        resp = self.client.get(self.user_url, {"id": "abc"})
+        
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("User ID must be an integer.", resp.json()["error"])
+
+    def test_get_by_id_empty(self):
+        self.register_user()
+        resp = self.client.get(self.user_url, {"id": ""})
+        
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn(V.EMPTY_USER_ID, resp.json()["error"])
+
+    def test_get_by_id_not_found(self):
+        self.register_user()
+        resp = self.client.get(self.user_url, {"id": 999999})
+        
+        self.assertEqual(resp.status_code, 404)
+        self.assertIn(V.ID_DOES_NOT_EXIST, resp.json()["error"])        
