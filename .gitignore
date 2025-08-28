@@ -49,3 +49,4 @@ volumes/
 .idea/
 *.iml
 services/Users/db_data/db.sqlite3
+services/Weights/db_data/db.sqlite3
