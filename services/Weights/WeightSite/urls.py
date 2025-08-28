@@ -16,7 +16,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from WeightApp.views import get_CSRF_token
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-]
+    path('get_csrf_token/', get_CSRF_token, name='get_csrf_token')
+    ]
