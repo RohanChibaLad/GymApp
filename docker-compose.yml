@@ -9,7 +9,7 @@ services:
     working_dir:
       /src
     ports:
-      - "8001:8001"
+      - "8000:8000"
     volumes:
       - ./services/Users/db_data:/src/db_data
       - ./services/Users:/src
