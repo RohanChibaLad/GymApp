@@ -1,0 +1,30 @@
+services:
+  user-app:
+    container_name:
+      user-app
+    build:
+      ./services/Users
+    image:
+      user
+    working_dir:
+      /src
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./services/Users/db_data:/src/db_data
+      - ./services/Users:/src
+
+  weights-app:
+    container_name:
+      weight-app
+    build:
+      ./services/Weights
+    image:
+      weight
+    working_dir:
+      /src
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./services/Weights/db_data:/src/db_data
+      - ./services/Weights:/src
